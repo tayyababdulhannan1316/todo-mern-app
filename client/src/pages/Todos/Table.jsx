@@ -4,6 +4,7 @@ import axios from "axios";
 function Index() {
   const [loading , setIsLoading] = useState(true);
   const [documents , setDocuments] = useState([]);
+  const [filteredDocuments , setFilteredDocuments] = useState([])
   const URL = "http://localhost:8000"
   
     useEffect(() => {
@@ -12,6 +13,7 @@ function Index() {
         .then((res) => {
           // console.log("Todos fetched successfully", res.data);
           setDocuments(res.data); // Store fetched todos in state
+          setFilteredDocuments(res.data); // Initialize filtered documents with all todos
         })
         .catch((err) => {
           console.error("Error fetching todos", err);
@@ -20,6 +22,13 @@ function Index() {
           setIsLoading(false); // Set loading to false after fetching
         });      
     },[])
+    const handleSearch = e => {
+      // Logic to handle search input
+      let text = e.target.value; // Get the search text from input
+      setFilteredDocuments( documents.filter(doc => doc.title.toLowerCase().includes(text.toLowerCase())));
+      console.log("Filtered documents:", filteredDocuments);
+      
+    }
   
     const handleEdit = (todo) => {
       // Logic to handle editing a todo
@@ -53,6 +62,11 @@ function Index() {
             <h1 className="text-center mb-0"> Todos</h1>
           </div>
         </div>
+        <div className="row mb-4 ">
+          <div className="col-12 col-md-6 offset-md-3 ">
+          <input type="search" className="form-control" placeholder="Search todos by title..." onChange={handleSearch} />
+          </div>
+        </div>
         <div className="row">
           <div className="col">
             {!loading
@@ -69,7 +83,7 @@ function Index() {
   </thead>
   <tbody>
     {/* Map through documents to display todos */}
-    {documents.map((todo, index) => {
+    {filteredDocuments.map((todo, index) => {
       return (
       <tr key={index}>
         <th scope="row">{index + 1}</th>

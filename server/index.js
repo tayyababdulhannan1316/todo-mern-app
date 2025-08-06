@@ -1,10 +1,16 @@
+require("dotenv").config();
 const express = require ("express");
 const app = express()
 const cors = require("cors");
 const mongoose = require("mongoose");
 
 // Connect to MongoDB
-let dbURI = "mongodb+srv://tayyababdulhannan:tayyab%40123@cluster1.fpuz6bt.mongodb.net/todo?retryWrites=true&w=majority&appName=Cluster1";
+let dbURI = process.env.DB_URL || "mongodb://localhost:27017/todo";  // Use the DB_URL from .env or fallback to local 
+console.log('dbURI', dbURI)
+// MongoDB
+if (dbURI.startsWith('"') && dbURI.endsWith('"')) {
+    dbURI = dbURI.slice(1, -1);  // Remove quotes if they exist
+}
 mongoose.connect(dbURI)
     .then(() => console.log("MongoDB connected"))
     .catch(err => console.error("MongoDB connection error:", err));
