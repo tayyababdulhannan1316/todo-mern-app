@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 const initialState = {
   title: "",
@@ -11,6 +11,7 @@ function Add() {
   const URL = "http://localhost:8000"
   const handleChange = (e) =>
     setState((s) => ({ ...s, [e.target.name]: e.target.value }));
+    
   const handleSubmit = (e) => {
     e.preventDefault();
     let {title, location, description} = state;
@@ -28,7 +29,8 @@ function Add() {
       // updatedAt: new Date().toISOString()*/
     };
 
-
+  
+        
     
     axios.post(`${URL}/createTodo`, todo)
       .then((res) => {

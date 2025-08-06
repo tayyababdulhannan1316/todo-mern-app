@@ -1,11 +1,11 @@
 import React from "react";
 import "bootstrap/dist/js/bootstrap.bundle";
 import "./App.scss";
-import Add from "./pages/Add.jsx";
+import Todos  from "./pages/Todos";
 function App() {
   return (
    
-     <Add />
+     <Todos />
    
   );
 }
