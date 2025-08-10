@@ -1,110 +1,122 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Table, Button, Input, Space, Spin, Popconfirm, Card } from "antd";
+
 
 function Index() {
-  const [loading , setIsLoading] = useState(true);
-  const [documents , setDocuments] = useState([]);
-  const [filteredDocuments , setFilteredDocuments] = useState([])
-  const URL = "http://localhost:8000"
-  
-    useEffect(() => {
-      // This effect runs only once when the component mounts
-      axios.get(`${URL}/readTodos`) 
-        .then((res) => {
-          // console.log("Todos fetched successfully", res.data);
-          setDocuments(res.data); // Store fetched todos in state
-          setFilteredDocuments(res.data); // Initialize filtered documents with all todos
-        })
-        .catch((err) => {
-          console.error("Error fetching todos", err);
-        }) 
-        .finally(() => {
-          setIsLoading(false); // Set loading to false after fetching
-        });      
-    },[])
-    const handleSearch = e => {
-      // Logic to handle search input
-      let text = e.target.value; // Get the search text from input
-      setFilteredDocuments( documents.filter(doc => doc.title.toLowerCase().includes(text.toLowerCase())));
-      console.log("Filtered documents:", filteredDocuments);
-      
-    }
-  
-    const handleEdit = (todo) => {
-      // Logic to handle editing a todo
-      console.log("Edit todo", todo);
-        axios.post(`${URL}/updateTodo`, todo)
-            .then((res) => {
-              console.log("res", res);
-              setDocuments((prev) => prev.map(t => t._id === todo._id ? res.data : t)); // Update the todo in state
-            })
-            .catch((err) => {
-              console.error("Error adding todo", err);
-            });
-    }
-    const handleDelete = (todo) => {
-      // Logic to handle deleting a todo
-      console.log("Delete todo", todo);
-      axios.post(`${URL}/deleteTodo`, todo)
-        .then((res) => {
-          console.log("res", res);
-          setDocuments((prev) => prev.filter(t => t._id !== todo._id)); // Remove the todo from state
-        })
-        .catch((err) => {
-          console.error("Error deleting todo", err);
-        });
-    }
-  return (
-    <div className="py-5 bg-light">
-      <div className="container">
-        <div className="row mb-4">
-          <div className="col">
-            <h1 className="text-center mb-0"> Todos</h1>
-          </div>
-        </div>
-        <div className="row mb-4 ">
-          <div className="col-12 col-md-6 offset-md-3 ">
-          <input type="search" className="form-control" placeholder="Search todos by title..." onChange={handleSearch} />
-          </div>
-        </div>
-        <div className="row">
-          <div className="col">
-            {!loading
-            ? 
-            <table className="table-primary table table-striped">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Title</th>
-      <th scope="col">Location</th>
-      <th scope="col">Description</th>
-      <th scope="col">Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    {/* Map through documents to display todos */}
-    {filteredDocuments.map((todo, index) => {
-      return (
-      <tr key={index}>
-        <th scope="row">{index + 1}</th>
-        <td>{todo.title}</td>
-        <td>{todo.location}</td>
-        <td>{todo.description}</td>
-        <td>
-          <button className="btn btn-danger btn-sm" onClick={()=>handleDelete(todo)}>Delete</button>
-          <button className="btn btn-primary btn-sm ms-2" onClick={()=>handleEdit(todo)}>Edit</button>
-      </td>
-      </tr>)
-    })}    
-  </tbody>
-</table>
-:<div className="d-flex justify-content-center align-items-center"><span className="spinner spinner-border"></span></div>
-            }
+  const [loading, setIsLoading] = useState(true);
+  const [documents, setDocuments] = useState([]);
+  const [filteredDocuments, setFilteredDocuments] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+ 
+  const URL = "http://localhost:8000";
 
-          </div>
-        </div>
-          
-      </div>
+  useEffect(() => {
+    axios
+      .get(`${URL}/readTodos`)
+      .then((res) => {
+        setDocuments(res.data);
+        setFilteredDocuments(res.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching todos", err);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
+
+  const handleSearch = (value) => {
+    setFilteredDocuments(
+      documents.filter((doc) =>
+        doc.title.toLowerCase().includes(value.toLowerCase())
+      )
+    );
+  };
+
+  const handleEdit = (todo) => {
+    axios
+      .post(`${URL}/updateTodo`, todo)
+      .then((res) => {
+        setDocuments((prev) =>
+          prev.map((t) => (t._id === todo._id ? res.data : t))
+        );
+      })
+      .catch((err) => {
+        console.error("Error editing todo", err);
+      });
+  };
+
+  const handleDelete = (todo) => {
+    axios
+      .post(`${URL}/deleteTodo`, todo)
+      .then(() => {
+        setDocuments((prev) => prev.filter((t) => t._id !== todo._id));
+        setFilteredDocuments((prev) => prev.filter((t) => t._id !== todo._id));
+      })
+      .catch((err) => {
+        console.error("Error deleting todo", err);
+      });
+  };
+
+const columns = [
+  {
+    title: "#",
+    render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
+  },
+  { title: "Title", dataIndex: "title" },
+  { title: "Location", dataIndex: "location" },
+  { title: "Description", dataIndex: "description" },
+  {
+    title: "Action",
+    render: (_, record) => (
+      <Space>
+        <Button type="primary" onClick={() => handleEdit(record)}>
+          Edit
+        </Button>
+        <Popconfirm
+          title="Are you sure?"
+          onConfirm={() => handleDelete(record)}
+        >
+          <Button danger>Delete</Button>
+        </Popconfirm>
+      </Space>
+    ),
+  },
+];
+
+  return (
+    <div className="todo-container">
+      <h1 className="todo-title">Todos</h1>
+      <Input.Search
+        placeholder="Search todos by title..."
+        allowClear
+        onSearch={handleSearch}
+        className="todo-search"
+      />
+      {loading ? (
+        <Spin size="large" style={{ display: "block", margin: "2rem auto" }} />
+      ) : (
+        <Card className="todo-card">
+      <Table
+          className="todo-table"
+          dataSource={filteredDocuments}
+          columns={columns}
+          rowKey="_id"
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            showSizeChanger: true,
+            onChange: (page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            },
+          }}
+            />
+
+        </Card>
+      )}
     </div>
   );
 }

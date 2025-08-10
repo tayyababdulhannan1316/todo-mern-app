@@ -1,0 +1,48 @@
+.todo-container {
+  padding: 2rem;
+  background-color: #f4f6f8;
+  min-height: 100vh;
+}
+
+.todo-title {
+  text-align: center;
+  font-weight: 600;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #124e66;
+}
+
+.todo-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.todo-search {
+  max-width: 400px;
+  margin: 1rem auto;
+  display: block;
+}
+
+.todo-table .ant-table-thead > tr > th {
+  background-color: #eaf2f5;
+  font-weight: 600;
+}
+
+.todo-table .ant-table-tbody > tr:hover > td {
+  background-color: #f1f8fa;
+}
+
+.status-completed {
+  background: #28a745;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.status-pending {
+  background: #ffc107;
+  color: #212529;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
